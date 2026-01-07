@@ -1,0 +1,6 @@
+bm_claro:
+  css:
+    theme:
+      css/bm-claro.css: {}
+  js:
+    js/bm-claro.js: { }

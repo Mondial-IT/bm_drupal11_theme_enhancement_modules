@@ -1,0 +1,32 @@
+
+/*
+ Copyright (c) Mondial-IT BV - Blue Marloc 2024
+   Created on 2024-11-21 at 11:32:16
+ */
+
+/*
+  .gif naast gva element form met voorbeeld en uitleg.
+ */
+#gpb_form-edit-configs img.example-image{
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  z-index: 34;
+  right: -221px;
+  background: white;
+  top: 0;
+  box-shadow: 2px 2px lightblue;
+  border-radius: 8px;
+  padding: 10px;
+}
+#gpb_form-edit-configs .example{
+  display:none;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

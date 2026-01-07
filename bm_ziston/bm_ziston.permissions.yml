@@ -1,0 +1,4 @@
+administer bm_ziston configuration:
+  title: 'Administer bm_ziston configuration'
+  description: 'Optional description.'
+  restrict access: true

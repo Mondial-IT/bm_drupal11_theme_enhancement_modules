@@ -1,0 +1,8 @@
+
+bm_ziston.settings_form:
+  path: '/admin/config/system/bm-ziston'
+  defaults:
+    _title: 'bm_ziston settings'
+    _form: 'Drupal\bm_ziston\Form\SettingsForm'
+  requirements:
+    _permission: 'administer bm_ziston configuration'

@@ -1,0 +1,10 @@
+name: Mondial-IT Ziston Enhancements
+type: module
+description: Alterations and enhancements to ziston theme
+package: Mondial-IT
+core_version_requirement: ^11
+libraries:
+  - bm_ziston/bm_ziston
+dependencies:
+  - bm_main:bm_main
+  - bm_paragraph:bm_paragraph

@@ -1,0 +1,83 @@
+/* breadcrumb in admin */
+nav .breadcrumb__link{
+  color: #a2bceb;
+}
+/* tabs on admin */
+nav .tabs__link{
+  color:lightgrey;
+  font-weight:normal;
+}
+
+/* Dark mode adjustments for Claro --------------------------------------- */
+:root[data-theme="dark"] .claro {
+  --bm-claro-dark-surface: #1f2937;
+  --bm-claro-dark-surface-muted: #111827;
+  --bm-claro-dark-border: rgba(255, 255, 255, 0.08);
+  --bm-claro-dark-text: #e2e8f0;
+  --bm-claro-dark-text-muted: #94a3b8;
+  --bm-claro-dark-accent: #6ee7b7;
+}
+
+:root[data-theme="dark"] .claro nav .breadcrumb {
+  background-color: var(--bm-claro-dark-surface);
+  border-color: var(--bm-claro-dark-border);
+  box-shadow: inset 0 1px 0 var(--bm-claro-dark-border);
+}
+
+:root[data-theme="dark"] .claro nav .breadcrumb__link {
+  color: var(--bm-claro-dark-text);
+}
+
+:root[data-theme="dark"] .claro nav .breadcrumb__item::after {
+  color: var(--bm-claro-dark-text-muted);
+}
+
+:root[data-theme="dark"] .claro nav .tabs {
+  background-color: var(--bm-claro-dark-surface-muted);
+  border-color: var(--bm-claro-dark-border);
+}
+
+[data-theme="dark"] body.claro {
+  background-color: var(--bm-claro-dark-surface-muted);
+  color: var(--bm-claro-dark-text);
+}
+
+:root[data-theme="dark"] .claro a {
+  color: #93c5fd;
+}
+
+:root[data-theme="dark"] .claro a:hover,
+:root[data-theme="dark"] .claro a:focus {
+  color: #bfdbfe;
+}
+
+:root[data-theme="dark"] .claro h1,
+:root[data-theme="dark"] .claro h2,
+:root[data-theme="dark"] .claro h3,
+:root[data-theme="dark"] .claro h4,
+:root[data-theme="dark"] .claro h5,
+:root[data-theme="dark"] .claro h6 {
+  color: var(--bm-claro-dark-text);
+}
+
+:root[data-theme="dark"] .claro nav .tabs__link {
+  color: var(--bm-claro-dark-text-muted);
+  border-color: transparent;
+}
+
+:root[data-theme="dark"] .claro nav .tabs__link.is-active,
+:root[data-theme="dark"] .claro nav .tabs__link:hover,
+:root[data-theme="dark"] .claro nav .tabs__link:focus {
+  color: var(--bm-claro-dark-accent);
+  border-color: var(--bm-claro-dark-accent);
+  background-color: rgba(110, 231, 183, 0.08);
+}
+
+code{
+  margin: 0.5em 0;
+  background:light-dark(#eee,#111);
+  color:light-dark(#111,#eee);
+  border-radius: 2px;
+  padding: 1px 6px;
+  font-size: small;
+}

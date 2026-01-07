@@ -1,0 +1,6 @@
+bm_ziston.settings_form:
+  title: 'Ziston theme'
+  description: 'Configure bm_ziston.'
+  parent: bm_main.section_enhancements_theme
+  route_name: bm_ziston.settings_form
+  weight: 10

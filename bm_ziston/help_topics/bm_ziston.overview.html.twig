@@ -1,0 +1,43 @@
+---
+label: 'BM Enhancing Ziston theme'
+top_level: true
+related: []
+---
+<h2>What this module does</h2>
+<ul>
+  <li>Adds admin-only styling fixes via the <code>bm_ziston</code> library on admin routes.</li>
+  <li>Provides language-aware page builder overrides: text blocks written as <code>[en:...][fr:...][nl:...]</code> in the English node are swapped at render time for the active language.</li>
+  <li>Exposes a set of helper functions for URL parsing, paragraphs traversal, and date formatting used by the Ziston theme/custom code.</li>
+  <li>Makes smart-crop width/height inputs visible on image crop widgets.</li>
+  <li>Ships GridStack assets for grid layouts; demo: <a href="https://gridstackjs.com/demo/">https://gridstackjs.com/demo/</a> (docs: GitHub README).</li>
+</ul>
+
+<h2>Key behaviors & entry points</h2>
+<ul>
+  <li><strong>Settings form</strong>: <code>/admin/config/system/bm-ziston</code> (route <code>bm_ziston.settings_form</code>, permission <code>administer bm_ziston configuration</code>). Lists bundled Twig/JS and helper functions.</li>
+  <li><strong>Admin library</strong>: <code>bm_ziston_page_attachments()</code> attaches <code>bm_ziston/bm_ziston</code> on admin routes for styling fixes.</li>
+  <li><strong>Page builder language override</strong>: <code>bm_ziston_preprocess_node()</code> sets <code>$language</code> for Twig (<code>/en</code>, <code>/fr</code>, <code>/nl</code>) and rewrites <code>gva_pagebuilder_content</code> by replacing language-tagged snippets based on the active language.</li>
+  <li><strong>Smart-crop visibility</strong>: <code>bm_ziston_element_info_alter()</code> attaches <code>bm_ziston/smartCropVisibleWHInputjs</code> so width/height fields show up on image crop widgets.</li>
+</ul>
+
+<h2>Helper functions (procedural)</h2>
+<ul>
+  <li><code>bm_ziston_get_url_arguments($names, $types)</code> — Sanitizes URL params as numeric/string and returns an array of values.</li>
+  <li><code>bm_ziston_parse_string_arguments($queryString)</code> — Parses strings like <code>country=225&category=31</code> into an array.</li>
+  <li><code>bm_ziston_get_node_paragraphs_terms_field()</code>, <code>bm_ziston_get_node_paragraphs_terms()</code>, <code>bm_ziston_get_node_paragraphs()</code> — Traverse node → paragraphs → terms.</li>
+  <li><code>bm_ziston_get_paragraph_field()</code>, <code>bm_ziston_get_paragraph_id()</code>, <code>bm_ziston_get_paragraph_type()</code>, <code>bm_ziston_get_paragraph_terms_name()</code> — Paragraph field helpers.</li>
+  <li><code>bm_ziston_get_paragraph_datefield_locale()</code>, <code>bm_ziston_get_paragraph_created_timestamp()</code>, <code>bm_ziston_get_paragraph_created_locale()</code> — Date helpers with locale formatting.</li>
+</ul>
+
+<h2>Templates & JS shipped</h2>
+<ul>
+  <li>Twig: <code>templates/gva_webform.html.twig</code>, <code>hubspot-contact-form-html.twig</code>, <code>hubspot-order-leads-form.html.twig</code>.</li>
+  <li>JS: <code>js/ziston_tippy_pagebuilder_support.js</code> (enables/disables rows in GVA settings) plus the smart-crop helper.</li>
+</ul>
+
+<h2>Usage notes</h2>
+<ul>
+  <li>Keep the English node as the canonical source for page builder content and wrap language-specific snippets in <code>[en|fr|nl:]</code> tokens; translations need only minimal metadata.</li>
+  <li>Clear caches after adjusting Twig or JS to refresh the active theme render cache.</li>
+  <li>If moving helpers to services, keep the cache bin and language handling aligned with the theme expectations.</li>
+</ul>

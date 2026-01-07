@@ -1,0 +1,5 @@
+services:
+  bm_ziston.event_subscriber:
+    class: Drupal\bm_ziston\EventSubscriber\BmZistonSubscriber
+    tags:
+      - { name: event_subscriber }

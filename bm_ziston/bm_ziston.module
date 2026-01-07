@@ -1,0 +1,288 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ Copyright (c) Mondial-IT BV - Blue Marloc 2024
+   Created on 2024-11-21 at 11:32:16
+ */
+
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Drupal\node\NodeInterface;
+use Drupal\paragraphs\ParagraphInterface;
+
+/**
+ * @noinspection PhpUnused
+ * @noinspection PhpUnusedParameterInspection
+ */
+function bm_ziston_help(string $route_name, RouteMatchInterface $route_match): string {
+  if ($route_name === 'help.page.bm_ziston') {
+    $output = '<h2>' . t('Mondial-IT Ziston Enhancements Module') . '</h2>';
+    $output .= '<p>' . t('Provides alterations for the Gavias Ziston theme, including language-aware page builder tweaks and admin libraries.') . '</p>';
+
+    $output .= '<h3>' . t('Menus') . '</h3><ul>';
+    $output .= '<li>' . t('<strong>bm_ziston</strong> — Blue Marloc » Administration entry that leads to the settings form.') . '</li>';
+    $output .= '</ul>';
+
+    $output .= '<h3>' . t('URIs') . '</h3><ul>';
+    $output .= '<li>' . t('<code>@uri</code> (<code>@route</code>) — Configure theme overrides.', [
+      '@uri' => '/admin/config/system/bm-ziston',
+      '@route' => 'bm_ziston.settings_form',
+    ]) . '</li>';
+    $output .= '</ul>';
+
+    $output .= '<h3>' . t('Features') . '</h3><ul>';
+    $output .= '<li>' . t('Adds a <code>language</code> variable to Twig and replaces <code>[en|fr|nl:text]</code> snippets based on the active translation.') . '</li>';
+    $output .= '<li>' . t('<code>bm_ziston_get_url_arguments()</code> helper sanitizes URL parameters (string/numeric).') . '</li>';
+    $output .= '<li>' . t('Admin pages automatically load the <code>bm_ziston</code> library for styling fixes.') . '</li>';
+    $output .= '</ul>';
+
+    return $output;
+  }
+  return '';
+}
+
+/**
+ * Attach admin library on admin routes.
+ */
+function bm_ziston_page_attachments(array &$attachments): void {
+  if (\Drupal::service('router.admin_context')->isAdminRoute()) {
+    $attachments['#attached']['library'][] = 'bm_ziston/bm_ziston';
+  }
+}
+
+/**
+ * **Feature 1: $language in twig**
+ *
+ * **Feature 2: [en:...][fr:...][nl:...]  in english node overrides translated nodes**
+ *
+ * **Implements override of english node over French and Dutch**
+ * * When `gva_pagebuilder_content` contains `[en:text] ...` then the French and Dutch nodes will override the english version
+ * * In the overridden node the `[en:...]` text will be replaced with the appropriate text from the [fr:...] or [nl:...] content
+ *
+ * @file
+ * preprocess node
+ * set $language variable for twig to /en,/nl,/fr
+ *
+ *
+ */
+function bm_ziston_preprocess_node(array &$variables): void {
+  if (!isset($variables['node']) || !$variables['node'] instanceof NodeInterface) {
+    return;
+  }
+
+  $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  bm_ziston_session()->set('language', $language);
+
+  $language_prefix = $language !== 'en' ? '/' . $language : '';
+  $variables['language'] = $language_prefix;
+
+  // feature using [en:...][fr:...][nl:...] in fields
+  // instead of translated gva pagebuilder content
+  // as that gva_pagebuilder_content, requires to duplicate pages
+  // and maintenance is a lot of work
+
+  // bracket content into [langcode: text] instead in the english node
+  // note a translated node needs to be made for the path and other variables
+  // but the gva content comes from the en node.
+
+  // Check if the current request is for editing the node.
+  $is_editing = \Drupal::routeMatch()->getRouteName() === 'entity.node.edit_form';
+  if (!$is_editing && isset($variables['node']->gva_pagebuilder_content)) {
+    $content = $variables['node']->gva_pagebuilder_content->getValue();
+    if (isset($content[0]['value'])) {
+      $content = $variables['node']->gva_pagebuilder_content->getValue()[0]['value'];
+    }
+    else {
+      $content = '';
+    }
+
+    if ($language === 'en' && !str_contains($content, '[en:')) {
+      return;
+    }
+    else {
+      // when there are [en:text] parts,
+      // it means the english version overrides the local language version
+      $nid = $variables['node']->id();
+      $node = Node::load($nid);
+      if (!$node) {
+        return;
+      }
+      $nodeEn = $node->getTranslation('en');
+      $values = $nodeEn->get('gva_pagebuilder_content')->getValue();
+      if (!isset($values[0]['value'])) {
+        return;
+      }
+
+      $contentBuilderJSON = $values[0]['value'];
+      if (str_contains($contentBuilderJSON, '[en:')) {
+        if ($language_prefix === '/nl') {
+          $contentBuilderJSONLanguageSpecific = preg_replace_callback('/\[(en|fr|nl):(.*?)\]/', 'bm_ziston_replace_nl_callback', $contentBuilderJSON);
+        }
+        elseif ($language_prefix === '/fr') {
+          $contentBuilderJSONLanguageSpecific = preg_replace_callback('/\[(en|fr|nl):(.*?)\]/', 'bm_ziston_replace_fr_callback', $contentBuilderJSON);
+        }
+        else {
+          $contentBuilderJSONLanguageSpecific = preg_replace_callback('/\[(en|fr|nl):(.*?)\]/', 'bm_ziston_replace_en_callback', $contentBuilderJSON);
+        }
+        $variables['node']->gva_pagebuilder_content->setValue(['value' => $contentBuilderJSONLanguageSpecific]);
+      }
+    }
+  }
+}
+
+function bm_ziston_replace_en_callback(array $matches): string {
+  // Retrieve the language code and the text from the matches.
+  $languageCode = $matches[1];
+  $text = $matches[2];
+  if ($languageCode == 'en') {
+    return $text;
+  }
+  return '';
+}
+
+function bm_ziston_replace_fr_callback(array $matches): string {
+  // Retrieve the language code and the text from the matches.
+  $languageCode = $matches[1];
+  $text = $matches[2];
+  if ($languageCode == 'fr') {
+    return $text;
+  }
+  return '';
+}
+
+function bm_ziston_replace_nl_callback(array $matches): string {
+  // Retrieve the language code and the text from the matches.
+  $languageCode = $matches[1];
+  $text = $matches[2];
+  if ($languageCode == 'nl') {
+    return $text;
+  }
+  return '';
+}
+
+/**
+ * fix. alters 'input hidden' to 'input text', on smart-crop fields, to display width and height.
+ *
+ * @param array $types
+ * @return void
+ */
+function bm_ziston_element_info_alter(array &$types): void {
+  if (isset($types['image_crop'])) {
+    $types['table']['#attached']['library'][] = 'bm_ziston/smartCropVisibleWHInputjs';
+  }
+}
+
+
+/**
+ * a general purpose function to retrieve url arguments
+ * exa. $id  = bm_ziston_get_url_arguments(['id'],['numeric'])['id'];
+ *
+ * @var $name string[]  name in url
+ * @var $type string[]  numeric or string
+ */
+function bm_ziston_get_url_arguments(array $names, array $types_numeric_or_string): array {
+  return bm_main_get_url_arguments($names, $types_numeric_or_string);
+}
+
+/**
+ * parse "category=22,canvass=101" into ['category'=>22, 'canvass'=>101]
+ * parse "interaction_data=""call_phone_number":"+31 40 245 45 45""
+ * it assumes all values must be integers
+ *
+ * @param $string
+ *
+ * @return array
+ */
+function bm_ziston_parse_string_arguments(string $queryString): array {
+  return bm_main_parse_string_arguments($queryString);
+}
+
+/**
+ * get data from a term referenced by a node through a paragraph referencing a term
+ *
+ * @param $node
+ * @param $node_fieldname
+ * @param $para_fieldname
+ * @param $term_fieldname
+ *
+ * @return array
+ */
+function bm_ziston_get_node_paragraphs_terms_field(NodeInterface $node, string $node_fieldname, string $para_fieldname, string $term_fieldname): array {
+  return \Drupal::service('bm_paragraph.helper')
+    ->getNodeParagraphsTermsField($node, $node_fieldname, $para_fieldname, $term_fieldname);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getNodeParagraphsTerms().
+ */
+function bm_ziston_get_node_paragraphs_terms(NodeInterface $node, string $node_fieldname, string $para_fieldname): array {
+  return \Drupal::service('bm_paragraph.helper')
+    ->getNodeParagraphsTerms($node, $node_fieldname, $para_fieldname);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getNodeParagraphs().
+ */
+function bm_ziston_get_node_paragraphs(NodeInterface $node, string $node_fieldName): array {
+  return \Drupal::service('bm_paragraph.helper')->getNodeParagraphs($node, $node_fieldName);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getParagraphField().
+ */
+function bm_ziston_get_paragraph_field(ParagraphInterface $paragraph, string $fieldName): array {
+  return \Drupal::service('bm_paragraph.helper')->getParagraphField($paragraph, $fieldName);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getParagraphId().
+ */
+function bm_ziston_get_paragraph_id(ParagraphInterface $paragraph): int {
+  return \Drupal::service('bm_paragraph.helper')->getParagraphId($paragraph);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getParagraphType().
+ */
+function bm_ziston_get_paragraph_type(ParagraphInterface $paragraph): string {
+  return \Drupal::service('bm_paragraph.helper')->getParagraphType($paragraph);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getParagraphTermsName().
+ */
+function bm_ziston_get_paragraph_terms_name(ParagraphInterface $paragraph, string $para_field): array {
+  return \Drupal::service('bm_paragraph.helper')->getParagraphTermsName($paragraph, $para_field);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getParagraphDatefieldLocale().
+ */
+function bm_ziston_get_paragraph_datefield_locale(ParagraphInterface $paragraph, string $para_fieldName): string {
+  return \Drupal::service('bm_paragraph.helper')->getParagraphDatefieldLocale($paragraph, $para_fieldName);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getParagraphCreatedTimestamp().
+ */
+function bm_ziston_get_paragraph_created_timestamp(ParagraphInterface $paragraph): int {
+  return \Drupal::service('bm_paragraph.helper')->getParagraphCreatedTimestamp($paragraph);
+}
+
+/**
+ * @deprecated Use bm_paragraph.helper::getParagraphCreatedLocale().
+ */
+function bm_ziston_get_paragraph_created_locale(ParagraphInterface $paragraph): string {
+  return \Drupal::service('bm_paragraph.helper')->getParagraphCreatedLocale($paragraph);
+}
+
+/**
+ * Returns the session service.
+ */
+function bm_ziston_session(): SessionInterface {
+  return \Drupal::requestStack()->getSession();
+}

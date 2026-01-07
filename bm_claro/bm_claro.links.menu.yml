@@ -1,0 +1,11 @@
+bm_claro.bm_claro:
+  title: 'Claro Theme'
+  description: 'Mondial-IT bm_claro. Help topic describing the Claro enhancements.'
+  parent: bm_main.section_enhancements_theme
+  route_name: help.help_topic
+  route_parameters:
+    module: bm_claro
+    id: bm_claro.overview
+  options:
+    _admin_route: TRUE
+  weight: 30

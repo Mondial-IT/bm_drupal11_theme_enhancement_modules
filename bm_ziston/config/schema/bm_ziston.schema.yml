@@ -1,0 +1,8 @@
+# Schema for the configuration files of the bm_ziston module.
+bm_ziston.settings:
+  type: config_object
+  label: 'bm_ziston settings'
+  mapping:
+    example:
+      type: string
+      label: 'Example'

@@ -1,0 +1,7 @@
+name: Mondial-IT Claro theme enhancements
+type: module
+description: Contains css and jss to enhance Clare theme
+core_version_requirement: ^10 || ^11
+package: Mondial-IT
+dependencies:
+  - bm_main:bm_main
