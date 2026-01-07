@@ -1,0 +1,5 @@
+name: Mondial-IT Gin theme enhancements
+type: module
+description: Contains css and jss to enhance Gin theme
+core_version_requirement: ^10 || ^11
+package: BM Drupal Enhancements

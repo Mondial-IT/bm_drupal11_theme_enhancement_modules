@@ -1,0 +1,25 @@
+{
+    "name": "mondial-it/bm_theme_enhancement_modules",
+    "description": "Modules: bm_gin, bm_claro, bm_ziston, wiki",
+    "type": "drupal-custom-module",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Blue Marloc",
+            "email": "info@bluemarloc.com"
+        }
+    ],
+    "require": {
+        "drupal/core": "^10.2 || ^11"
+    },
+    "autoload": {
+        "psr-4": {
+            "Drupal\\bm_theme_enhancement_modules\\": "src/"
+        }
+    },
+    "extra": {
+        "drupal": {
+            "package": "Blue Marloc"
+        }
+    }
+}

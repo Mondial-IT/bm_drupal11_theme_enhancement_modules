@@ -1,0 +1,4 @@
+bm_gin:
+  css:
+    theme:
+      css/bm-gin.css: {}

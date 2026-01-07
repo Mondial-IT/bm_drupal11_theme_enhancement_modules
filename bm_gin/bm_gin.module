@@ -1,0 +1,40 @@
+<?php
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_page_attachments().
+ */
+function bm_gin_page_attachments(array &$attachments): void
+{
+  $route = Drupal::routeMatch()->getRouteObject();
+  if ($route && str_starts_with($route->getPath(), '/admin')) {
+    $attachments['#attached']['library'][] = 'bm_gin/bm_gin';
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ *
+ * Ensure a 'gin' marker class exists for dark/light overrides.
+ */
+function bm_gin_preprocess_html(array &$variables): void {
+  $variables['attributes']['class'][] = 'gin';
+}
+
+/**
+ * Implements hook_help().
+ */
+function bm_gin_help($route_name, RouteMatchInterface $route_match): string
+{
+  if ($route_name === 'help.page.bm_gin') {
+    $output = '<h2>' . t('Mondial-IT Gin theme enhancements') . '</h2>';
+    $output .= '<p>' . t('Provides CSS and JavaScript tweaks that polish the Gin admin theme for Blue Marloc dashboards and forms.') . '</p>';
+
+    $output .= '<h3>' . t('Menus') . '</h3><ul><li>' . t('None. The library is attached automatically on /admin routes.') . '</li></ul>';
+    $output .= '<h3>' . t('URIs') . '</h3><ul><li>' . t('None. The module does not expose standalone pages or forms.') . '</li></ul>';
+
+    return $output;
+  }
+  return '';
+}
