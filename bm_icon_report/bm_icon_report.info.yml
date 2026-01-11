@@ -1,0 +1,7 @@
+name: BM Icon Report
+type: module
+description: 'Displays discovered icon CSS classes for developers.'
+core_version_requirement: ^11
+package: BM Theme Enhancements
+dependencies:
+  - bm_main

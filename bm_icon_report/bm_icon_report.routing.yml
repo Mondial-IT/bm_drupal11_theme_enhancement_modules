@@ -1,0 +1,7 @@
+bm_icon_report.icons:
+  path: '/admin/blue-marloc/icons'
+  defaults:
+    _controller: '\Drupal\bm_icon_report\Controller\IconGalleryController::index'
+    _title: 'Icon catalogue'
+  requirements:
+    _permission: 'administer site configuration'

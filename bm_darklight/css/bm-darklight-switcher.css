@@ -1,0 +1,63 @@
+.bm-darklight-switcher {
+  width:fit-content;
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.bm-darklight-switcher input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.bm-darklight-switcher label {
+  position: relative;
+  padding: 0.5rem 0.9rem;
+  min-width: 5rem;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  color: #0f172a;
+  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.bm-darklight-switcher input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+}
+
+.bm-darklight-switcher label {
+  position: relative;
+  padding: 0.5rem 0.9rem;
+  min-width: 5rem;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  color: #0f172a;
+  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.bm-darklight-switcher label:first-of-type {
+  border-right: 1px solid #cbd5e1;
+}
+
+.bm-darklight-switcher label:nth-of-type(2) {
+  border-right: 1px solid #cbd5e1;
+}
+
+.bm-darklight-switcher input[type="radio"]:checked + label {
+  background: #2563eb;
+  color: #fff;
+}
+
+.bm-darklight-switcher label:focus-within {
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+  z-index: 1;
+}

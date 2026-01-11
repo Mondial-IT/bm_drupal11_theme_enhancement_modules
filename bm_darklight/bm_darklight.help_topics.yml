@@ -1,0 +1,6 @@
+bm_darklight.theme_switcher:
+  title: 'Theme switcher'
+  category: 'User interface'
+  path: '/admin/help/bm_darklight/theme_switcher'
+  routes:
+    - bm_darklight.theme_switcher_demo

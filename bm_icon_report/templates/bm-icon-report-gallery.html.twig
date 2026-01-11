@@ -1,0 +1,43 @@
+{% if icon_sets %}
+  <div class="bm-icon-intro">
+    <p>{{ 'Use this catalogue to copy the icon class you need. Each entry shows the rendered glyph, the CSS class, and the unicode value provided by the source file.'|t }}</p>
+    <div class="bm-icon-actions">
+      <a href="{{ refresh_url }}" class="button button--small bm-icon-refresh">{{ 'Refresh catalogue'|t }}</a>
+    </div>
+  </div>
+
+  {% for set in icon_sets %}
+    <details class="bm-icon-set" open>
+      <summary class="bm-icon-set__summary">
+        <div class="bm-icon-set__header">
+          <div>
+            <h2>{{ set.label }}</h2>
+            <div class="bm-icon-set__meta">
+              <span>{{ '@count icons'|t({'@count': set.count}) }}</span>
+              <code>{{ set.source }}</code>
+            </div>
+          </div>
+          <span class="bm-icon-toggle" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="bm-icon-grid">
+        {% for icon in set.icons %}
+          <div class="bm-icon-card">
+            <span class="bm-icon-card__glyph" title="{{ icon.class }}">
+              <i class="{{ icon.class }}" aria-hidden="true"></i>
+              {% if icon.character %}
+                <span class="bm-icon-card__fallback">{{ icon.character }}</span>
+              {% endif %}
+            </span>
+            <span class="bm-icon-card__class">{{ icon.class }}</span>
+            {% if icon.code %}
+              <span class="bm-icon-card__code">{{ icon.code }}</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </details>
+  {% endfor %}
+{% else %}
+  <p class="bm-icon-empty">{{ empty_message }}</p>
+{% endif %}

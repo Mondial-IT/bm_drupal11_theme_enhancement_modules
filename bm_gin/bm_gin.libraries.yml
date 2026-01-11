@@ -2,3 +2,7 @@ bm_gin:
   css:
     theme:
       css/bm-gin.css: {}
+  js:
+    js/bm-gin.js: {}
+  dependencies:
+    - core/drupal

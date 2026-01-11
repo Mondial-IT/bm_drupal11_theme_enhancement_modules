@@ -1,15 +1,49 @@
 <?php
 
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Menu\MenuLinkTreeInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Theme\Icon\IconDefinition;
 
 /**
  * Implements hook_page_attachments().
  */
-function bm_gin_page_attachments(array &$attachments): void
-{
-  $route = Drupal::routeMatch()->getRouteObject();
-  if ($route && str_starts_with($route->getPath(), '/admin')) {
-    $attachments['#attached']['library'][] = 'bm_gin/bm_gin';
+function bm_gin_page_attachments(array &$attachments): void {
+  $route = \Drupal::routeMatch()->getRouteObject();
+  if (!$route || !str_starts_with($route->getPath(), '/admin')) {
+    return;
+  }
+
+  $attachments['#attached']['library'][] = 'bm_gin/bm_gin';
+
+  $icon_map = bm_gin_build_icon_map_from_menu('admin');
+  if (!$icon_map) {
+    return;
+  }
+
+  $css = [];
+  foreach ($icon_map['icons'] as $class => $url) {
+    // Escape single quotes for safe embedding in CSS.
+    $safe_url = str_replace("'", "\\'", $url);
+    $css[] = ".toolbar .toolbar-icon-{$class}::before{--icon:url('{$safe_url}');mask-image:var(--icon);-webkit-mask-image:var(--icon);background-image:var(--icon);background-repeat:no-repeat;background-position:center;background-size:1.25rem 1.25rem;content:'';}";
+  }
+
+  if ($css) {
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'style',
+        '#attributes' => ['type' => 'text/css'],
+        '#value' => implode('', $css),
+      ],
+      'bm_gin_icon_css',
+    ];
+  }
+
+  if ($icon_map['providers']) {
+    \Drupal::logger('bm_gin')->debug(
+      'Gin icon bridge (toolbar) loaded icons for menu links from providers: @providers',
+      ['@providers' => implode(', ', array_keys($icon_map['providers']))]
+    );
   }
 }
 
@@ -25,8 +59,7 @@ function bm_gin_preprocess_html(array &$variables): void {
 /**
  * Implements hook_help().
  */
-function bm_gin_help($route_name, RouteMatchInterface $route_match): string
-{
+function bm_gin_help($route_name, RouteMatchInterface $route_match): string {
   if ($route_name === 'help.page.bm_gin') {
     $output = '<h2>' . t('Mondial-IT Gin theme enhancements') . '</h2>';
     $output .= '<p>' . t('Provides CSS and JavaScript tweaks that polish the Gin admin theme for Blue Marloc dashboards and forms.') . '</p>';
@@ -37,4 +70,108 @@ function bm_gin_help($route_name, RouteMatchInterface $route_match): string
     return $output;
   }
   return '';
+}
+
+/**
+ * Build a toolbar icon map from the admin menu tree.
+ */
+function bm_gin_build_icon_map_from_menu(string $menu_name): array {
+  $icon_map = [];
+  $providers = [];
+
+  /** @var \Drupal\Core\Menu\MenuLinkTreeInterface $menu_tree */
+  $menu_tree = \Drupal::service('menu.link_tree');
+  $parameters = (new \Drupal\Core\Menu\MenuTreeParameters())
+    ->onlyEnabledLinks();
+  $tree = $menu_tree->load($menu_name, $parameters);
+
+  $manipulators = [
+    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+  ];
+  $tree = $menu_tree->transform($tree, $manipulators);
+
+  if (!$tree) {
+    return [
+      'icons' => [],
+      'providers' => [],
+    ];
+  }
+
+  $walk = static function (array $items) use (&$walk, &$icon_map, &$providers): void {
+    foreach ($items as $item) {
+      if (!isset($item->access) || !$item->access->isAllowed()) {
+        continue;
+      }
+      $link = $item->link;
+      $url = $link->getUrlObject();
+      $icon = $url->getOption('icon') ?? [];
+      if (isset($icon['pack_id'], $icon['icon_id'])) {
+        $plugin_id = $link->getPluginId();
+        $plugin_class = Html::getClass(str_replace('.', '_', $plugin_id));
+        $pack_id = (string) $icon['pack_id'];
+        $icon_id = (string) $icon['icon_id'];
+        if ($resolved = bm_gin_icon_url_from_pack($pack_id, $icon_id, $providers)) {
+          $icon_map[$plugin_class] = $resolved;
+        }
+      }
+      if (!empty($item->subtree)) {
+        $walk($item->subtree);
+      }
+    }
+  };
+
+  $walk($tree);
+  \Drupal::logger('bm_gin')->debug('runs');
+  return [
+    'icons' => $icon_map,
+    'providers' => $providers,
+  ];
+}
+
+/**
+ * Resolve an icon pack/id to a web-absolute URL for mask/background use.
+ */
+function bm_gin_icon_url_from_pack(string $pack_id, string $icon_id, array &$icon_providers): ?string {
+  /** @var \Drupal\Core\Theme\Icon\Plugin\IconPackManagerInterface $manager */
+  $manager = \Drupal::service('plugin.manager.icon_pack');
+  $icon_full_id = IconDefinition::createIconId($pack_id, $icon_id);
+  $icon = $manager->getIcon($icon_full_id);
+  if (!$icon || !$icon->getSource()) {
+    return NULL;
+  }
+
+  $source = $icon->getSource();
+  // Absolute URL provided.
+  if (str_starts_with($source, 'http://') || str_starts_with($source, 'https://')) {
+    return $source;
+  }
+
+  $base = base_path();
+  // Web-root absolute path.
+  if (str_starts_with($source, '/')) {
+    return $base . ltrim($source, '/');
+  }
+
+  // Relative to provider (module or theme).
+  $provider = $icon->getData('provider') ?? $pack_id;
+  $icon_providers[$provider] = TRUE;
+  $path_resolver = \Drupal::service('extension.path.resolver');
+  $module_handler = \Drupal::service('module_handler');
+  $theme_handler = \Drupal::service('theme_handler');
+  $provider_path = NULL;
+
+  if ($module_handler->moduleExists($provider)) {
+    $provider_path = $path_resolver->getPath('module', $provider);
+  }
+  elseif ($theme_handler->themeExists($provider)) {
+    $provider_path = $path_resolver->getPath('theme', $provider);
+  }
+
+  if ($provider_path) {
+    return $base . $provider_path . '/' . ltrim($source, '/');
+  }
+
+  // Fallback: treat as relative to web root.
+  return $base . ltrim($source, '/');
 }

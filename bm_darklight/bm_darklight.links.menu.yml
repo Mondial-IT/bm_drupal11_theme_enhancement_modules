@@ -1,0 +1,13 @@
+bm_darklight.darklight_switcher_demo:
+  title: 'Dark/Light Switcher Demo'
+  description: 'Demo form for the Dark Light Switcher component'
+  route_name: bm_darklight.darklight_switcher_demo
+  parent: system.admin_config_ui
+  weight: 100
+
+bm_darklight.darklight_switcher_demo_bm:
+  title: 'Dark/Light Switcher Demo'
+  description: 'Demo form for the Dark Light Switcher component'
+  route_name: bm_darklight.darklight_switcher_demo
+  parent: bm_main.bluemarloc_enhancements
+  weight: 100

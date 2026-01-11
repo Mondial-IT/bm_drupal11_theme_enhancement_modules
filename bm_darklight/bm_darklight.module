@@ -1,0 +1,30 @@
+<?php
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function bm_darklight_help($route_name, RouteMatchInterface $route_match): string {
+  if ($route_name === 'help.page.bm_darklight') {
+    $output = '<h2>' . t('BM Darklight') . '</h2>';
+    $output .= '<p>' . t('Provides a reusable light/dark/system theme switcher component for admin pages.') . '</p>';
+    $output .= '<h3>' . t('Demo') . '</h3><ul><li>' . t('Theme Switcher demo: /admin/config/user-interface/bm-darklight/theme-switcher-demo') . '</li></ul>';
+    return $output;
+  }
+  return '';
+}
+
+/**
+ * Implements hook_theme().
+ */
+function bm_darklight_theme($existing, $type, $theme, $path) {
+  return [
+    'bm_darklight_switcher' => [
+      'variables' => [],
+      'template' => 'bm-darklight-switcher',
+      // Prefer the provided $path to avoid drupal_get_path().
+      'path' => $path . '/templates',
+    ],
+  ];
+}

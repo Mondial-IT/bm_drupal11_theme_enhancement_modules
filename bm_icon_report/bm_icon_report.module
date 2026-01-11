@@ -1,0 +1,21 @@
+<?php /** @noinspection PhpUnused */
+
+
+/**
+ * # placing twigs in the module/templates
+ *
+ * @return array[]
+ */
+function bm_icon_report_theme(): array {
+  $module_path = \Drupal::service('extension.path.resolver')->getPath('module', 'bm_icon_report');
+  return [
+    'bm_icon_report_gallery' => [
+      'variables' => [
+        'icon_sets' => [],
+        'empty_message' => NULL,
+      ],
+      'template' => 'bm-icon-report-gallery',
+      'path' => $module_path . '/templates',
+    ],
+  ];
+}

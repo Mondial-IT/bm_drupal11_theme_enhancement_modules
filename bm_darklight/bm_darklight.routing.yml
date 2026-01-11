@@ -1,0 +1,15 @@
+bm_darklight.darklight_switcher_demo:
+  path: '/admin/config/user-interface/bm-darklight/theme-switcher-demo'
+  defaults:
+    _form: '\Drupal\bm_darklight\Form\DarkLightSwitcherDemoForm'
+    _title: 'Theme Switcher Demo'
+  requirements:
+    _permission: 'administer site configuration'
+# under blue marloc menu
+bm_darklight.darklight_switcher_demo_bm:
+  path: '/admin/bm-darklight/darklight-switcher-demo'
+  defaults:
+    _form: '\Drupal\bm_darklight\Form\DarkLightSwitcherDemoForm'
+    _title: 'Theme Switcher Demo'
+  requirements:
+    _permission: 'administer site configuration'

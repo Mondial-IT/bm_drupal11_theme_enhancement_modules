@@ -1,0 +1,7 @@
+name: BM Darklight
+type: module
+description: 'Standalone light/dark theme switcher component for admin UI.'
+core_version_requirement: ^11
+package: BM Theme Enhancements
+dependencies:
+  - bm_main

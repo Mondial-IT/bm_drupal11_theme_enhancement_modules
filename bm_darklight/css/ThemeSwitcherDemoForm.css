@@ -1,0 +1,14 @@
+.bm-demo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.bm-demo-row code {
+  display: block;
+  padding: 0.5rem;
+  background: #f6f8fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}

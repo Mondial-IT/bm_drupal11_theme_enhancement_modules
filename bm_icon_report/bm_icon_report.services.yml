@@ -1,0 +1,4 @@
+services:
+  bm_icon_report.icon_discovery:
+    class: Drupal\bm_icon_report\Service\IconDiscovery
+    arguments: ['@file_system', '@messenger']

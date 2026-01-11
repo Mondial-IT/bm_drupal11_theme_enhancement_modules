@@ -1,0 +1,4 @@
+bm_icon_report.icons:
+  css:
+    theme:
+      css/bm-icon-report.css: {}

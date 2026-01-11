@@ -1,0 +1,16 @@
+darklight_switcher:
+  css:
+    theme:
+      css/bm-darklight-switcher.css: {}
+  js:
+    js/bm-darklight-switcher.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+
+darklight_switcher_demo:
+  css:
+    theme:
+      css/ThemeSwitcherDemoForm.css: {}
+  dependencies:
+    - core/drupal
