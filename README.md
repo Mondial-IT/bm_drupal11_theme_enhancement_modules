@@ -8,8 +8,9 @@ ___
 These modules enhance the functionality of Drupal 11 themes like Gin, Claro, Ziston
 
 ### Gin admin theme
-* Dark mode switch buttons
-* Support for custome toolbar menu item with Drupal style icon pack.
+* Support for Dark mode switch buttons
+* Support for custom toolbar menu item with Drupal style icon pack.
+<img width="188" height="489" alt="image" src="https://github.com/user-attachments/assets/11f7ecc9-cea7-41c9-ba16-9782dd57cc09" />
 
 ### Claro admin theme
 
