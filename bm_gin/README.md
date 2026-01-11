@@ -15,7 +15,8 @@
   - Logs which providers contributed icons for visibility while debugging.
   - Uses `MenuLinkTree` with enabled links only (no current-route filter) to ensure admin menu items are discovered even outside admin routes.
 
-Example:
+## Example:
+<img width="188" height="489" alt="image" src="https://github.com/user-attachments/assets/11f7ecc9-cea7-41c9-ba16-9782dd57cc09" />
 
 #### module.links.menu.yml
 ```
