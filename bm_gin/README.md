@@ -14,3 +14,68 @@
   - Resolves the icon pack source to an absolute URL and injects a per-class `--icon` CSS rule for `toolbar-icon-{plugin_id}` so custom SVGs appear in Gin navigation.
   - Logs which providers contributed icons for visibility while debugging.
   - Uses `MenuLinkTree` with enabled links only (no current-route filter) to ensure admin menu items are discovered even outside admin routes.
+
+Example:
+
+#### module.links.menu.yml
+```
+# bm_main provides the menu
+bm_icon_reports.icons_page:
+  title: 'Icon catalogue2'
+  description: 'Preview the icon fonts provided by the site.'
+  parent: bm_main.bluemarloc_enhancements
+  route_name: bm_icon_report.icons
+  weight: 20
+  options:
+    icon:
+      pack_id: bm_main
+      icon_id: bluemarloc
+    _admin_route: TRUE
+#
+
+```
+
+#### icons:
+icons defined in: `bm_main/assets/` example `bm_main/assets/bluemarloc.svg` becomes `icon_id: bluemarloc`
+
+#### bm_main.icons.yml
+```
+bm_main:
+  enabled: true
+  label: 'Blue Marloc Icons'
+  description: 'Icon set for Blue Marloc navigation items.'
+  version: 1.x
+  license:
+    name: Proprietary
+    url: https://bluemarloc.com
+    gpl-compatible: false
+  extractor: svg
+  config:
+    sources:
+      - assets/icons/*.svg
+  settings:
+    size:
+      title: 'Size'
+      description: 'Set a size for this icon.'
+      type: 'integer'
+      default: 20
+    class:
+      title: 'Class'
+      description: 'Set a class for this icon.'
+      type: 'string'
+      default: ''
+  template: >
+    <svg
+      {{ attributes
+          .setAttribute('viewBox', attributes.viewBox|default('0 0 24 24'))
+          .setAttribute('class', class)
+          .setAttribute('width', size|default('20'))
+          .setAttribute('height', size|default('20'))
+          .setAttribute('aria-hidden', 'true')
+      }}
+    >
+      {{ content }}
+    </svg>
+
+
+```
