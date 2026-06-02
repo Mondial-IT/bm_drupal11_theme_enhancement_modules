@@ -41,7 +41,7 @@ class IconGalleryController extends ControllerBase {
     $build = [
       // override to use twig bm-icon-report-gallery
       '#theme' => 'bm_icon_report_gallery',
-      '#title' => $this->t('Icon catalogue'),
+      '#title' => $this->t('Icon Report'),
       '#icon_sets' => $icon_sets,
       '#empty_message' => $this->t('No icon sources were detected in the current codebase.'),
       '#refresh_url' => Url::fromRoute(

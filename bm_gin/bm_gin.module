@@ -7,6 +7,8 @@ use Drupal\Core\Theme\Icon\IconDefinition;
 
 /**
  * Implements hook_page_attachments().
+ * Feature, using drupal icon packs for custom menu items in the toolbar.
+ * It scans the menu for the pack definitions and injects the required gin css to make the icon display.
  */
 function bm_gin_page_attachments(array &$attachments): void {
   $route = \Drupal::routeMatch()->getRouteObject();
@@ -16,16 +18,20 @@ function bm_gin_page_attachments(array &$attachments): void {
 
   $attachments['#attached']['library'][] = 'bm_gin/bm_gin';
 
+  // scan menu
   $icon_map = bm_gin_build_icon_map_from_menu('admin');
   if (!$icon_map) {
     return;
   }
-
+  // inject appropriate css
   $css = [];
   foreach ($icon_map['icons'] as $class => $url) {
     // Escape single quotes for safe embedding in CSS.
     $safe_url = str_replace("'", "\\'", $url);
+    // gin without 'navigation'
     $css[] = ".toolbar .toolbar-icon-{$class}::before{--icon:url('{$safe_url}');mask-image:var(--icon);-webkit-mask-image:var(--icon);background-image:var(--icon);background-repeat:no-repeat;background-position:center;background-size:1.25rem 1.25rem;content:'';}";
+    // gin with 'navigation'
+    $css[] = ".toolbar-link--has-icon.toolbar-link--{$class} {--icon:url('{$safe_url}')}";
   }
 
   if ($css) {

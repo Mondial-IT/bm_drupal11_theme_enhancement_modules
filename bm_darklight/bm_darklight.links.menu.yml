@@ -1,13 +1,32 @@
 bm_darklight.darklight_switcher_demo:
   title: 'Dark/Light Switcher Demo'
   description: 'Demo form for the Dark Light Switcher component'
-  route_name: bm_darklight.darklight_switcher_demo
+  route_parameters:
+    module: bm_darklight
+    id: bm_darklight.overview
   parent: system.admin_config_ui
-  weight: 100
-
+  weight: 1
+#
+bm_darklight.help_topic:
+  title: 'Help topic'
+  description: 'Display help topic.'
+  route_name: help.help_topic
+  route_parameters:
+    module: bm_darklight
+    id: bm_darklight.overview
+  parent: bm_darklight.darklight_switcher_demo_bm
+  weight: 1
+#
 bm_darklight.darklight_switcher_demo_bm:
-  title: 'Dark/Light Switcher Demo'
+  title: 'Dark mode'
   description: 'Demo form for the Dark Light Switcher component'
   route_name: bm_darklight.darklight_switcher_demo
-  parent: bm_main.bluemarloc_enhancements
-  weight: 100
+  parent: bm_main.bluemarloc_demos
+  weight: 2
+#
+bm_darklight.darklight_switcher_demo_bm_demo:
+  title: 'Dark mode'
+  description: 'Demo form for the Dark Light Switcher component'
+  route_name: bm_darklight.darklight_switcher_demo
+  parent: bm_darklight.darklight_switcher_demo_bm
+  weight: 3

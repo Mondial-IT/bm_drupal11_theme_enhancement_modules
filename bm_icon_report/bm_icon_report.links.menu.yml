@@ -1,15 +1,20 @@
 bm_icon_report.icons:
-  title: 'Icon report2'
+  title: 'Icon report'
   description: 'List discovered icon classes for developers.'
   route_name: bm_icon_report.icons
   parent: system.admin_reports
   weight: 50
+  options:
+    icon:
+      pack_id: bm_main
+      icon_id: bluemarloc
+    _admin_route: TRUE
 
 # bm_main provides the menu
 bm_icon_reports.icons_page:
-  title: 'Icon catalogue2'
+  title: 'Icon report'
   description: 'Preview the icon fonts provided by the site.'
-  parent: bm_main.bluemarloc_enhancements
+  parent: bm_main.bluemarloc_demo_reports
   route_name: bm_icon_report.icons
   weight: 20
   options:
